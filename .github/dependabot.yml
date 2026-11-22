@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: bun
+    directory: /backend
+    schedule:
+      interval: weekly
+  - package-ecosystem: bun
+    directory: /frontend
+    schedule:
+      interval: weekly
+  - package-ecosystem: bun
+    directory: /backend/app/router
+    schedule:
+      interval: weekly

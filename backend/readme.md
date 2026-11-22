@@ -73,3 +73,9 @@ must provide the `hana` and `xsuaa` services. The MTA build uses Bun to install 
 build the frontend and CAP service. Cloud Foundry's Node.js buildpack uses npm for the generated
 CAP service and Application Router. When changing CAP dependencies, run `bun install` and
 `npm install --package-lock-only` from `backend/` so both the Bun and deployment locks stay current.
+
+### Automated deployment
+
+`.github/workflows/deploy.yml` builds and deploys the MTA when a pull request is merged into `main`
+(or when run manually). Define these repository secrets: `CF_API`, `CF_USERNAME`, `CF_PASSWORD`,
+`CF_ORG`, and `CF_SPACE`.

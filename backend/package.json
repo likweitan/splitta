@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "packageManager": "bun@1.4.0",
+  "type": "module",
+  "dependencies": {
+    "@cap-js/hana": "^3",
+    "@sap-ai-sdk/orchestration": "^2.17.0",
+    "@sap/cds": "^10",
+    "@sap/xssec": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^3",
+    "@sap/cds-dk": "^10"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "node --env-file-if-exists=.env ./node_modules/@sap/cds-dk/bin/cds.js watch",
+    "build": "cds build --production",
+    "test": "node --test"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "[production]": {
+        "auth": "xsuaa"
+      }
+    }
+  }
+}

@@ -1,0 +1,92 @@
+_schema-version: 3.3.0
+ID: splitta
+version: 1.0.0
+description: "Splitta CAP backend with SAP HANA persistence."
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - bun install --frozen-lockfile
+        - bun install --cwd ../frontend --frozen-lockfile
+        - bun run --cwd ../frontend build
+        - node scripts/copy-frontend.js
+        - bun run build
+modules:
+  - name: splitta-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      instances: 1
+      buildpack: nodejs_buildpack
+      stack: cflinuxfs5
+    build-parameters:
+      builder: npm
+    provides:
+      - name: srv-api # required by consumers of CAP services (e.g. approuter)
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: splitta-db
+      - name: splitta-auth
+      - name: splitta-ai-core
+
+  - name: splitta-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+      stack: cflinuxfs5
+    requires:
+      - name: splitta-db
+  - name: splitta
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      keep-existing-routes: true
+      host: splitta
+      disk-quota: 256M
+      memory: 256M
+      stack: cflinuxfs5
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api # must be used in xs-app.json as well
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: splitta-auth
+    provides:
+      - name: app-api
+        properties:
+          app-protocol: ${protocol}
+          app-uri: ${default-uri}
+
+resources:
+  - name: splitta-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+  - name: splitta-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: splitta-${org}-${space}
+        tenant-mode: dedicated
+        oauth2-configuration:
+          credential-types:
+            - "binding-secret"
+            - "x509"
+          redirect-uris:
+            - https://*~{app-api/app-uri}/**
+    requires:
+      - name: app-api
+  - name: splitta-ai-core
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: ai-core

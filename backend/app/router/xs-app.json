@@ -1,0 +1,45 @@
+{
+  "welcomeFile": "index.html",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/logout",
+    "logoutPage": "/"
+  },
+  "routes": [
+    {
+      "source": "^/odata/v4/public-receipt/(.*)$",
+      "target": "/odata/v4/public-receipt/$1",
+      "destination": "srv-api",
+      "authenticationType": "none",
+      "csrfProtection": true
+    },
+    {
+      "source": "^/odata/v4/(.*)$",
+      "target": "/odata/v4/$1",
+      "destination": "srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": true
+    },
+    {
+      "source": "^/auth/login$",
+      "target": "index.html",
+      "localDir": "resources",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false,
+      "cacheControl": "no-cache, no-store, must-revalidate"
+    },
+    {
+      "source": "^/(assets/.*|favicon\\.ico|splitta\\.svg)$",
+      "target": "$1",
+      "localDir": "resources",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/(.*)$",
+      "target": "index.html",
+      "localDir": "resources",
+      "authenticationType": "none",
+      "cacheControl": "no-cache"
+    }
+  ]
+}

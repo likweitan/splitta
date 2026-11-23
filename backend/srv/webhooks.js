@@ -78,6 +78,11 @@ function receiptLink(receiptID) {
   return base && receiptID ? `${base}/receipt/${encodeURIComponent(receiptID)}` : null;
 }
 
+function sharedReceiptLink(receiptID) {
+  const link = receiptLink(receiptID);
+  return link ? `${link}?ref=share` : null;
+}
+
 /** Wraps an Adaptive Card in the envelope accepted by Microsoft Teams incoming webhooks and Workflows. */
 function teamsMessage({ title, text, facts = [], link }) {
   const body = [
@@ -116,6 +121,7 @@ export function buildWebhookMessage(event, details = {}) {
         { title: 'Total', value: formatAmount(details.priceAmount, details.currency) },
         { title: 'Items', value: details.itemCount ? String(details.itemCount) : null },
         { title: 'Created by', value: details.createdBy },
+        { title: 'Shared link', value: sharedReceiptLink(details.receiptID) },
       ],
       link: receiptLink(details.receiptID),
     });

@@ -72,6 +72,7 @@ test('omits unknown facts and links the receipt when APP_URL is set', (t) => {
   assert.deepEqual(card.body[1].facts, [
     { title: 'Items', value: '3' },
     { title: 'Created by', value: 'Bob' },
+    { title: 'Shared link', value: 'https://splitta.example.com/receipt/r1?ref=share' },
   ]);
   assert.equal(card.actions[0].url, 'https://splitta.example.com/receipt/r1');
 });

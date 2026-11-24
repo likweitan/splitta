@@ -87,7 +87,7 @@ export default function Home() {
       setLoading(true);
       const filter = activeTeam
         ? `team_ID eq ${activeTeam.id}`
-        : `owner eq '${user.id.replaceAll("'", "''")}'`;
+        : `owner eq '${user.id.replaceAll("'", "''")}' or viewers/any(v:v/userID eq '${user.id.replaceAll("'", "''")}')`;
       const records = await readCollection<{
         ID: string;
         merchantName: string;

@@ -150,10 +150,14 @@ export default function ReceiptDetail() {
 
     // Team members may read a receipt, but only its owner gets the editing view.
     read<{ owner: string }>(`${receiptKey(id)}?$select=owner`)
-      .then((receipt) => {
-        if (!cancelled) {
-          setAccess({ receiptId: id, isOwner: receipt.owner === user.id });
+      .catch(() => null)
+      .then(async (receipt) => {
+        const isOwner = receipt?.owner === user.id;
+        // Opening a shared receipt link adds it to the viewer's dashboard.
+        if (!isOwner) {
+          await create(`${services.receipt}/joinReceipt`, { ID: id });
         }
+        if (!cancelled) setAccess({ receiptId: id, isOwner });
       })
       .catch((cause: unknown) => {
         if (cancelled) return;

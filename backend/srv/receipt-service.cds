@@ -27,13 +27,13 @@ annotate ReceiptService with @cds.server.body_parser.limit: '12mb';
 
 service ReceiptService @(requires: 'authenticated-user') {
   entity Receipts @(restrict: [
-    { grant: 'READ', to: 'authenticated-user', where: 'owner = $user or exists team.members[userID = $user]' },
+    { grant: 'READ', to: 'authenticated-user', where: 'owner = $user or exists team.members[userID = $user] or exists viewers[userID = $user]' },
     { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'authenticated-user', where: 'owner = $user' }
   ])
     as projection on splitta.Receipts;
 
   entity ReceiptItems @(restrict: [
-    { grant: 'READ', to: 'authenticated-user', where: 'owner = $user or exists receipt.team.members[userID = $user]' },
+    { grant: 'READ', to: 'authenticated-user', where: 'owner = $user or exists receipt.team.members[userID = $user] or exists receipt.viewers[userID = $user]' },
     { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'authenticated-user', where: 'owner = $user' }
   ])
     as projection on splitta.ReceiptItems;
@@ -54,6 +54,10 @@ service ReceiptService @(requires: 'authenticated-user') {
     as projection on splitta.Webhooks;
 
   @readonly
+  entity ReceiptViewers @(restrict: [{ grant: 'READ', to: 'authenticated-user', where: 'userID = $user' }])
+    as projection on splitta.ReceiptViewers;
+
+  @readonly
   entity TeamMembers @(restrict: [{ grant: 'READ', to: 'authenticated-user', where: 'userID = $user' }])
     as projection on splitta.TeamMembers;
 
@@ -69,6 +73,7 @@ service ReceiptService @(requires: 'authenticated-user') {
     message : String(255);
   }
 
+  action joinReceipt(ID: UUID) returns Boolean;
   function whoAmI() returns CurrentUser;
   action testWebhook(ID: UUID) returns WebhookTestResult;
   function receiptImage(ID: UUID) returns LargeString;

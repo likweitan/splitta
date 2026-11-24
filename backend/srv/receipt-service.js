@@ -420,6 +420,20 @@ export default class ReceiptService extends cds.ApplicationService {
       }
     });
 
+    this.on('joinReceipt', async (req) => {
+      const { ID } = req.data;
+      const receipt = await SELECT.one.from('splitta.Receipts').columns('ID', 'owner').where({ ID });
+      if (!receipt) return req.reject(404, 'Receipt not found.');
+      if (receipt.owner === req.user.id) return true;
+      const existing = await SELECT.one
+        .from('splitta.ReceiptViewers')
+        .where({ receipt_ID: ID, userID: req.user.id });
+      if (!existing) {
+        await INSERT.into('splitta.ReceiptViewers').entries({ receipt_ID: ID, userID: req.user.id });
+      }
+      return true;
+    });
+
     this.on('whoAmI', (req) => {
       return {
         ID: req.user.id,

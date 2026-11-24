@@ -57,6 +57,13 @@ entity Receipts : cuid, managed {
   imageData          : LargeBinary;
   paymentMethod      : Association to PaymentMethods;
   items              : Composition of many ReceiptItems on items.receipt = $self;
+  viewers            : Association to many ReceiptViewers on viewers.receipt = $self;
+}
+
+// Signed-in users who opened a shared receipt link; it appears on their dashboard.
+entity ReceiptViewers {
+  key receipt : Association to Receipts;
+  key userID  : String(255);
 }
 
 entity ReceiptItems : cuid, managed {
